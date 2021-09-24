@@ -56,7 +56,7 @@
     - [Элемент `order/serv`](#_Toc69733220)
     - [Элемент `order/patient`](#_Toc69733221)
     - [Элемент `order/address/regAddress`](#_Toc69733222)
-    - [Элемент `order/address/factAddress`](#элемент-orderaddressfactAddress)
+    - [Элемент `order/address/factAddress`](#элемент-patientaddressregaddress)
   - _**[Получение статуса обработки заявки](#_Toc69733223)**_
   - **[Получение статуса. Количество не полученных статусов](#_Toc69733224)**
   - **[Получение статуса. Пакетное получение статусов](#_Toc69733225)**
