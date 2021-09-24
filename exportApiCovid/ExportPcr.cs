@@ -12,22 +12,13 @@ namespace exportApiCovid
     /// <summary>КЛАСС Экспортируем данные ПЦР тестов</summary>
     public static class ExportPcr
     {
-        /// <summary>Клиент</summary>
-        static readonly HttpClient client = new HttpClient();
-
         /// <summary>Колличество загружаемых записей</summary>
         static int countRow = 0;
-
-        /// <summary>Код начального протокола</summary>
-        static int minCodProtokol;
-
-        /// <summary>Код конечного протокола</summary>
-        static int maxCodProtokol;
               
         /// <summary>МЕТОД Запускаем расчет</summary>
         public static void Start()
         {
-            Glo.logger.Info($"Выполняем до {Config.stepOfProgram} шага.");
+            Program.logger.Info($"Выполняем до {Config.stepOfProgram} шага.");
 
             // Шаг COUNT - количество записей
             if (Config.stepOfProgram <= Config.eStepOfProgram.PAKAGE)
@@ -37,7 +28,7 @@ namespace exportApiCovid
                     return;
                 if (!_isStepCount)
                 {
-                    Glo.logger.Info("  Дальше не идем, записей то нет!");
+                    Program.logger.Info("  Дальше не идем, записей то нет!");
                     return;
                 }
             }
@@ -91,25 +82,25 @@ namespace exportApiCovid
         /// <returns>true - если количество записей больше нуля, иначе false</returns>
         static bool StepCount()
         {
-            Glo.logger.Info("Шаг: COUNT");
+            Program.logger.Info("Шаг: COUNT");
             Sql.QueryDataSet(Query.CountDataAvailabilityPcr_Select(), "countProtokol");
-            DataRow _row = Glo.dataSet.Tables["countProtokol"].Rows[0];
+            DataRow _row = Sql.dataSet.Tables["countProtokol"].Rows[0];
             countRow = Convert.ToInt32(_row["cou"]);
             if (countRow > 0)
             {
-                minCodProtokol = Convert.ToInt32(_row["minCod"]);
-                maxCodProtokol = Convert.ToInt32(_row["maxCod"]);
-                Glo.logger.Info($@"  Доступно данных ПЦР для загрузки: {countRow}, с кодами с {minCodProtokol} по {maxCodProtokol}");
+                int _minCodProtokol = Convert.ToInt32(_row["minCod"]);
+                int _maxCodProtokol = Convert.ToInt32(_row["maxCod"]);
+                Program.logger.Info($@"  Доступно данных ПЦР для загрузки: {countRow}, с кодами с {_minCodProtokol} по {_maxCodProtokol}");
                 return true;
             }
-            Glo.logger.Info($@"  Доступно данных ПЦР для загрузки: 0");
+            Program.logger.Info($@"  Доступно данных ПЦР для загрузки: 0");
             return false;
         }
 
         /// <summary>МЕТОД Шаг: TOKEN. Получаем рабочий токен доступа</summary>        
         static async Task StepToken()           
         {
-            Glo.logger.Info("Шаг: TOKEN");
+            Program.logger.Info("Шаг: TOKEN");
             string _description = "Получаем рабочий токен доступа";
             string _json = $@"{{ ""depart_number"":""{Config.departNumber}"",
                                 ""token"":""{Config.startToken}"" }}";
@@ -118,21 +109,21 @@ namespace exportApiCovid
             {
                 dynamic _jsonObject = JObject.Parse(_resposnse);
                 Config.workToken = _jsonObject.body.token;
-                Glo.logger.Info("  Рабочий токен: " + Config.workToken);               
+                Program.logger.Info("  Рабочий токен: " + Config.workToken);               
             }
             catch(JsonReaderException e)
             {
-                Glo.ExitError(e);
+                Program.ExitError(e);
             }
             catch (Exception e)
             {
-                Glo.ExitError(e);
+                Program.ExitError(e);
             }
         }
 
         /// <summary>POST запрос</summary> 
         /// <param name="urlAction">Путь к указанному действию (запрос токена, отправка ПЦР, запрос проверок)</param>
-        /// <param name="json">Дата создания результата ПЦР</param>
+        /// <param name="json">Тело запроса</param>
         /// <param name="description">Описание текущего действия</param>
         /// <returns>Возвращаем json ответ</returns>
         static async Task<string> ProcessRepositories(string urlAction, string json, string description)
@@ -142,21 +133,22 @@ namespace exportApiCovid
             string _resultContent = "";
             try
             {
-                Glo.logger.Info("  Запрос: " + description);
-                HttpResponseMessage _response = await client.PostAsync(_url, _data);
+                Program.logger.Info("  Запрос: " + description);
+                HttpClient _httpClient = new HttpClient();
+                HttpResponseMessage _response = await _httpClient.PostAsync(_url, _data);
                 _resultContent = await _response.Content.ReadAsStringAsync();
-                Glo.logger.Info("  Результат запроса: " + _response.StatusCode);
+                Program.logger.Info("  Результат запроса: " + _response.StatusCode);
 
                 if (_response.StatusCode != System.Net.HttpStatusCode.OK)
                     throw new Exception("Запрос не прошел.");
             }
             catch (HttpRequestException e)
             {
-                Glo.ExitError(e);
+                Program.ExitError(e);
             }
             catch (Exception e)
             {
-                Glo.ExitError(e);
+                Program.ExitError(e);
             }
             return _resultContent;
         }
@@ -164,10 +156,10 @@ namespace exportApiCovid
         /// <summary>МЕТОД Шаг PAKAGE. Загружаем данные ПЦР</summary>
         static async Task StepPakage()
         {
-            Glo.logger.Info("Шаг: PAKAGE");
+            Program.logger.Info("Шаг: PAKAGE");
             SqlDataReader _sqlDataReader = Sql.QuerySqlDataReader(Query.Pcr_Select());
             var _jsonPcr = new StringBuilder();          
-            while (_sqlDataReader.Read())
+            while (_sqlDataReader.Read())   // соединяем json тело из строк по 2033 символов
             {
                 _jsonPcr.Append(_sqlDataReader.GetString(0));               
             }
@@ -175,7 +167,7 @@ namespace exportApiCovid
             string _description = "  Импортируем данные";
 
             if (Config.visibleJsonPakage)
-                Glo.logger.Info(_jsonPcr);
+                Program.logger.Info(_jsonPcr);
 
             string _json = $@"{{ ""depart_number"":""{Config.departNumber}"",
                                  ""token"":""{Config.workToken}"",
@@ -188,7 +180,7 @@ namespace exportApiCovid
         static void UpdateProtokolPcr()
         {
             bool _result = Sql.QueryNo(Query.PcrDataSent_Update());
-            Glo.logger.Info($"  Пометили {Config.topRow} протоколов ПЦР: " + _result);
+            Program.logger.Info($"  Пометили {Config.topRow} протоколов ПЦР: " + _result);
             try
             {
                 if (!_result)
@@ -196,43 +188,43 @@ namespace exportApiCovid
             }
             catch (Exception e)
             {
-                Glo.ExitError(e);
+                Program.ExitError(e);
             }
         }
 
         /// <summary>МЕТОД Шаг STATUS_COUNT. Сколько статусов не проверенно</summary>
         static async Task StepStatusCount()
         {
-            Glo.logger.Info("Шаг: STATUS_COUNT");
+            Program.logger.Info("Шаг: STATUS_COUNT");
             string _description = "  Сколько статусов не проверенно";
             string _json = $@"{{ ""depart_number"":""{Config.departNumber}"",
                                  ""token"":""{Config.workToken}""}}";
             string _resposnse = await ProcessRepositories("status-count", _json, _description);
-            Glo.logger.Info(_resposnse);
+            Program.logger.Info(_resposnse);
         }
 
         /// <summary>МЕТОД Шаг STATUS_NEW. Получение указанного количество статусов</summary>
         static async Task StepStatusNew()
         {
-            Glo.logger.Info("Шаг: STATUS_NEW");
+            Program.logger.Info("Шаг: STATUS_NEW");
             string _description = "  Получение указанного количество статусов";
             string _json = $@"{{ ""depart_number"":""{Config.departNumber}"",
                                  ""token"":""{Config.workToken}"",
                                  ""count"":{Config.statusNewCount}}}";
             string _resposnse = await ProcessRepositories("new-status", _json, _description);
-            Glo.logger.Info(_resposnse);
+            Program.logger.Info(_resposnse);
         }
 
         /// <summary>МЕТОД Шаг STATUS_ORDER. Получение статусов с указанными кодами</summary>
         static async Task StepStatusOrder()
         {
-            Glo.logger.Info("Шаг: STATUS_ORDER");
+            Program.logger.Info("Шаг: STATUS_ORDER");
             string _description = "  Получение статусов с указанными кодами";
             string _json = $@"{{ ""depart_number"":""{Config.departNumber}"",
                                  ""token"":""{Config.workToken}"",
                                  ""orders"":{Config.statusOrders}}}";
             string _resposnse = await ProcessRepositories("status-by-orders", _json, _description);
-            Glo.logger.Info(_resposnse);
+            Program.logger.Info(_resposnse);
         }
     }
 }

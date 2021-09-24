@@ -72,7 +72,7 @@ namespace exportApiCovid
             }
             catch (ArgumentException e) // указанно неправильное значение ключа
             {
-                Glo.ExitError(e);
+                Program.ExitError(e);
             }
 
             if (stepOfProgram > eStepOfProgram.COUNT)
@@ -116,11 +116,11 @@ namespace exportApiCovid
             }
             catch (ConfigurationErrorsException e)
             {
-                Glo.ExitError(e);
+                Program.ExitError(e);
             }
             catch (Exception e)
             {
-                Glo.ExitError(e);
+                Program.ExitError(e);
             }
             return string.Empty;
         }
@@ -128,7 +128,7 @@ namespace exportApiCovid
         /// <summary>Дабавляем/меняем данные в конфиг файле</summary>
         /// <param name="key">Ключ</param>
         /// <param name="value">Значение</param>
-        /// <remarks>пока не используется</remarks>
+        /// <remarks>НЕ используется</remarks>
         public static void AddUpdateAppConfig(string key, string value)
         {
             try
@@ -148,8 +148,7 @@ namespace exportApiCovid
             }
             catch (ConfigurationErrorsException e)
             {
-                Glo.logger.Error(e.Message);
-                Glo.flagError = true;
+                Program.ExitError(e);
             }
         }
     }

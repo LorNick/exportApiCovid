@@ -11,6 +11,9 @@ namespace exportApiCovid
         /// <summary>Строка подключения к SQL Server`у</summary>
         static readonly SqlConnection sqlConnection;
 
+        /// <summary>База</summary>
+        public static DataSet dataSet = new DataSet();
+
         // КОНСТРУКТОР
         static Sql()
         {
@@ -28,11 +31,11 @@ namespace exportApiCovid
             if (_settings != null)
                 _connectionString = _settings.ConnectionString;
             else
-                Glo.logger.Fatal("Не нахожу в config файле строку подключения по имени" + providerName);           
+                Program.logger.Fatal("Не нахожу в config файле строку подключения по имени" + providerName);           
             return _connectionString;
         }
 
-        /// <summary>Заполняем DataSet Базиса (<see cref="Glo.dataSet"/>)</summary>
+        /// <summary>Заполняем DataSet Базиса (<see cref="dataSet"/>)</summary>
         /// <param name="querySql">Строка SQL кода</param>
         /// <param name="nameTable">Наименование таблицы</param>
         /// <returns>Возвращаем количество загруженных строк</returns>
@@ -44,30 +47,31 @@ namespace exportApiCovid
             try
             {
                 // Предварительно удаляем таблицу
-                if (Glo.dataSet.Tables[nameTable] != null)
-                    Glo.dataSet.Tables[nameTable].Clear();
+                if (dataSet.Tables[nameTable] != null)
+                    dataSet.Tables[nameTable].Clear();
                 // Загружаем данные
-                return _sqlData.Fill(Glo.dataSet, nameTable);
+                return _sqlData.Fill(dataSet, nameTable);
             }
             catch (SqlException ex)
             {
                 if (ex.Number == -2 && _countTimeout++ < 5)
                     goto label1;
                 ex.Data["SQL"] = querySql;
-                Glo.logger.Fatal(ex, "Ошибка Загрузки данных в DataSet из SQL");                
+                Program.logger.Fatal(ex, "Ошибка Загрузки данных в DataSet из SQL");                
                 goto label1;
             }
             catch (Exception ex)
             {                
-                Glo.dataSet.Tables.Remove(nameTable);
-                Glo.logger.Fatal(ex, "Ошибка Загрузки данных в DataSet из SQL");
-                return _sqlData.Fill(Glo.dataSet, nameTable);
+                dataSet.Tables.Remove(nameTable);
+                Program.logger.Fatal(ex, "Ошибка Загрузки данных в DataSet из SQL");
+                return _sqlData.Fill(dataSet, nameTable);
             }
         }
 
         /// <summary>Выполняем запрос (возвращаем строку)</summary>
         /// <param name="querySql">Строка SQL запроса</param>
         /// <returns>Возвращаем строку</returns>
+        /// <remarks>НЕ используется</remarks>
         public static string QueryString(string querySql)
         {
             string _result = "";
@@ -86,19 +90,19 @@ namespace exportApiCovid
                     if (ex.Number == -2 && _countTimeout++ < 5)
                         goto label1;
                     ex.Data["SQL"] = querySql;
-                    Glo.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего строку)");
+                    Program.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего строку)");
                 }
                 catch (Exception ex)
                 {
                     ex.Data["SQL"] = querySql;
-                    Glo.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего строку)");
+                    Program.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего строку)");
                 }
                 sqlConnection.Close();
             }
             catch (Exception ex)
             {
                 ex.Data["SQL"] = querySql;
-                Glo.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего строку)");               
+                Program.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего строку)");               
                 goto label1;
             }
             return _result;
@@ -107,6 +111,7 @@ namespace exportApiCovid
         /// <summary>Выполняем запрос (возвращаем целое число)</summary>
         /// <param name="querySql">Строка SQL кода</param>
         /// <returns>Возвращаем целое число</returns>
+        /// <remarks>НЕ используется</remarks>
         public static int QueryInt(string querySql)
         {
             int _result = 0;
@@ -125,18 +130,18 @@ namespace exportApiCovid
                     if (ex.Number == -2 && _countTimeout++ < 5)
                         goto label1;
                     ex.Data["SQL"] = querySql;
-                    Glo.logger.Error(ex, "Ошибка Запроса SQL (возвращающего целое число)");
+                    Program.logger.Error(ex, "Ошибка Запроса SQL (возвращающего целое число)");
                 }
                 catch (Exception ex)
                 {
                     ex.Data["SQL"] = querySql;
-                    Glo.logger.Error(ex, "Ошибка Запроса SQL (возвращающего целое число)");
+                    Program.logger.Error(ex, "Ошибка Запроса SQL (возвращающего целое число)");
                 }
             }
             catch (Exception ex)
             {
                 ex.Data["SQL"] = querySql;
-                Glo.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего целое число)");               
+                Program.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего целое число)");               
                 goto label1;
             }
             sqlConnection.Close();
@@ -165,18 +170,18 @@ namespace exportApiCovid
                     if (ex.Number == -2 && _countTimeout++ < 5)
                         goto label1;
                     ex.Data["SQL"] = querySql;
-                    Glo.logger.Fatal(ex, "Ошибка Запроса SQL (без возврата значения)");
+                    Program.logger.Fatal(ex, "Ошибка Запроса SQL (без возврата значения)");
                 }
                 catch (Exception ex)
                 {
                     ex.Data["SQL"] = querySql;
-                    Glo.logger.Fatal(ex, "Ошибка Запроса SQL (без возврата значения)");
+                    Program.logger.Fatal(ex, "Ошибка Запроса SQL (без возврата значения)");
                 }
             }
             catch (Exception ex)
             {
                 ex.Data["SQL"] = querySql;
-                Glo.logger.Fatal(ex, "Ошибка Запроса SQL (без возврата значения)");                               
+                Program.logger.Fatal(ex, "Ошибка Запроса SQL (без возврата значения)");                               
             }
             sqlConnection.Close();
             return _result;
@@ -203,18 +208,18 @@ namespace exportApiCovid
                     if (ex.Number == -2 && _countTimeout++ < 5)
                         goto label1;
                     ex.Data["SQL"] = querySql;
-                    Glo.ExitError(ex);
+                    Program.ExitError(ex);
                 }
                 catch (Exception ex)
                 {
                     ex.Data["SQL"] = querySql;
-                    Glo.ExitError(ex);
+                    Program.ExitError(ex);
                 }
             }
             catch (Exception ex)
             {
                 ex.Data["SQL"] = querySql;                
-                Glo.ExitError(ex);
+                Program.ExitError(ex);
             }
             return null;
         }    
