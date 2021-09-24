@@ -1,5 +1,5 @@
 # exportApiCovid
-[Specification](#плагин-df-dfr) 
+[Specification](#плагин-dfdfr) 
 [Custom foo description1](#installation)
 
 | Event         | Platform      | Description |
