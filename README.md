@@ -1,6 +1,10 @@
 # exportApiCovid
-[Specification](#плагин) 
+[Specification](#плагин-`df/dfr`) 
 [Custom foo description1](#installation)
+
+| Event         | Platform      | Description |
+| ------------- |-----------| -----:|
+| `message_received`| `facebook-messenger`<br/>`skype`|
 
 Отправка данных ПЦР тестов для вывода их на ГосУслуги
 ```javascript
@@ -167,7 +171,7 @@ require 'redcarpet'
 markdown = Redcarpet.new("Hello World!")
 puts markdown.to_html
 ```
-# Плагин
+# Плагин `df/dfr`
 
 
 
