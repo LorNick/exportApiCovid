@@ -1,5 +1,6 @@
 # exportApiCovid
 [Specification](#плагин-dfdfr) 
+[dfr](#элемент-patientaddressregaddress)
 [Custom foo description1](#installation)
 
 | Event         | Platform      | Description |
@@ -172,6 +173,9 @@ markdown = Redcarpet.new("Hello World!")
 puts markdown.to_html
 ```
 # Плагин `df/dfr`
+
+
+### Элемент `patient/address/regAddress`
 
 
 
