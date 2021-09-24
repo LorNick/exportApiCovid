@@ -1,5 +1,5 @@
 # exportApiCovid
-[Specification](#specification) 
+[Specification](#плагин) 
 [Custom foo description1](#installation)
 
 Отправка данных ПЦР тестов для вывода их на ГосУслуги
@@ -167,7 +167,7 @@ require 'redcarpet'
 markdown = Redcarpet.new("Hello World!")
 puts markdown.to_html
 ```
-# Food
+# Плагин
 
 
 
