@@ -71,7 +71,6 @@
     </None>
     <None Include="packages.config" />
     <None Include="Instruction.md" />
-    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
