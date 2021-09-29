@@ -20,61 +20,55 @@ namespace exportApiCovid
         {
             Program.logger.Info($"Выполняем до {Config.stepOfProgram} шага.");
 
-            // Шаг COUNT - количество записей
-            if (Config.stepOfProgram <= Config.eStepOfProgram.PAKAGE)
+            // Заданный в App.config шаг
+            switch (Config.stepOfProgram)
             {
-                bool _isStepCount = StepCount();
-                if (Config.stepOfProgram == Config.eStepOfProgram.COUNT)
-                    return;
-                if (!_isStepCount)
-                {
-                    Program.logger.Info("  Дальше не идем, записей то нет!");
-                    return;
-                }
-            }
+                // Шаг COUNT - количество записей
+                case Config.eStepOfProgram.COUNT:
+                    StepCount();
+                    break;
 
-            // Шаг TOKEN - находим рабочий токен
-            if (Config.stepOfProgram > Config.eStepOfProgram.COUNT)
-            {
-                StepToken().Wait();
-                if (Config.stepOfProgram == Config.eStepOfProgram.TOKEN)
-                    return;
-            }
+                // Шаг TOKEN - находим рабочий токен
+                case Config.eStepOfProgram.TOKEN:
+                    StepToken().Wait();
+                    break;
 
-            // Шаг PAKAGE - отправка данных
-            if (Config.stepOfProgram == Config.eStepOfProgram.PAKAGE)
-            {                                
-                // Пытаемся загрузить все доступные для загрузки ПЦР
-                for (int i = 0; i < countRow; i += Config.topRow)
-                {
-                    // Получаем json и отправляем результат ПЦР первых Config.topRow свободных строк
-                    StepPakage().Wait();                    
+                // Шаг PAKAGE - отправка данных
+                case Config.eStepOfProgram.PAKAGE:
+                    if (!StepCount())
+                    {
+                        Program.logger.Info("  Дальше не идем, записей то нет!");
+                        break;
+                    }
+                    StepToken().Wait();
+                    // Пытаемся загрузить все доступные для загрузки ПЦР
+                    for (int i = 0; i < countRow; i += Config.topRow)
+                    {
+                        // Получаем json и отправляем результат ПЦР первых Config.topRow свободных строк
+                        StepPakage().Wait();
 
-                    // Помечаем загруженные протоколы ПЦР в поле xInfo
-                    UpdateProtokolPcr();                   
-                }
-                return;
-            }
+                        // Помечаем загруженные протоколы ПЦР в поле xInfo
+                        UpdateProtokolPcr();
+                    }
+                    break;
 
-            // Шаг STATUS_COUNT - сколько статусов не проверенно
-            if (Config.stepOfProgram == Config.eStepOfProgram.STATUS_COUNT)
-            {
-                StepStatusCount().Wait();
-                return;
-            }
+                // Шаг STATUS_COUNT - сколько статусов не проверенно
+                case Config.eStepOfProgram.STATUS_COUNT:
+                    StepToken().Wait();
+                    StepStatusCount().Wait();
+                    break;
 
-            // Шаг STATUS_NEW - получение указанного количество статусов
-            if (Config.stepOfProgram == Config.eStepOfProgram.STATUS_NEW)
-            {
-                StepStatusNew().Wait();
-                return;
-            }
+                // Шаг STATUS_NEW - получение указанного количество статусов
+                case Config.eStepOfProgram.STATUS_NEW:
+                    StepToken().Wait();
+                    StepStatusNew().Wait();
+                    break;
 
-            // Шаг STATUS_ORDER - получение статусов с указанными кодами
-            if (Config.stepOfProgram == Config.eStepOfProgram.STATUS_ORDER)
-            {
-                StepStatusOrder().Wait();
-                return;
+                // Шаг STATUS_ORDER - получение статусов с указанными кодами
+                case Config.eStepOfProgram.STATUS_ORDER:
+                    StepToken().Wait();
+                    StepStatusOrder().Wait();
+                    break;
             }
         }
 
