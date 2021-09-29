@@ -3,7 +3,7 @@ using System;
 
 namespace exportApiCovid
 {
-    /// <summary>КЛАСС Глобальные из конфиг файла App.config (он же в релизе exportApiCovid.exe.Config)</summary>
+    /// <summary>КЛАСС Глобальные переменные, берем из конфиг файла App.config (он же в релизе exportApiCovid.exe.config)</summary>
     public static class Config
     {
         /// <summary>Шаги выполнения программы</summary>
@@ -48,7 +48,7 @@ namespace exportApiCovid
         /// <summary>Сколько строк отправляем за один раз, максимум 50 (берем из конфига)</summary>
         public static int topRow;
 
-        /// <summary>Количество стасов которые нужно вернуть для Шага STATUS_NEW (берем из конфига)</summary>       
+        /// <summary>Количество статусов которые нужно вернуть для Шага STATUS_NEW (берем из конфига)</summary>       
         public static int statusNewCount;
 
         /// <summary>Коды для получения их статуса, для Шага STATUS_ORDER (берем из конфига)</summary>       
