@@ -5,9 +5,9 @@ namespace exportApiCovid
     /// <summary>КЛАСС для вывода SQL Запросов</summary>
     /// <remarks>Класс используется только для запросов SQL</remarks>
     public static class Query
-    {      
+    {
         /// <summary>Дата до которого берем записи (Позавчера)</summary>
-        static readonly DateTime DAY2 = DateTime.Today.AddDays(-2);
+        static readonly DateTime DAY2 = DateTime.Today.AddDays(-1);
 
         /// <summary>Условие выборки данных ПЦР для отправки</summary>
         public static string Pcr_Where()
@@ -124,15 +124,6 @@ namespace exportApiCovid
                     join dbo.kbol as k on k.KL = p.KL and len(k.SNILS) = 14
                     where {Pcr_Where()}
                 ) as d";
-            return _result;
-        }
-
-        public static string Test_Select()
-        {           
-            string _result = $@"
-                SELECT top(10) [Protokol]                  
-              FROM [Bazis].[dbo].[apaNProtokol]
-              where Cod = 308769";
             return _result;
         }
     }
