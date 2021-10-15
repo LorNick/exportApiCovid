@@ -57,15 +57,14 @@ namespace exportApiCovid
                 if (ex.Number == -2 && _countTimeout++ < 5)
                     goto label1;
                 ex.Data["SQL"] = querySql;
-                Program.logger.Fatal(ex, "Ошибка Загрузки данных в DataSet из SQL");                
-                goto label1;
+                Program.ExitError(ex);
             }
             catch (Exception ex)
             {                
                 dataSet.Tables.Remove(nameTable);
-                Program.logger.Fatal(ex, "Ошибка Загрузки данных в DataSet из SQL");
-                return _sqlData.Fill(dataSet, nameTable);
+                Program.ExitError(ex);                
             }
+            return 0;
         }
 
         /// <summary>Выполняем запрос (возвращаем строку)</summary>
@@ -90,20 +89,19 @@ namespace exportApiCovid
                     if (ex.Number == -2 && _countTimeout++ < 5)
                         goto label1;
                     ex.Data["SQL"] = querySql;
-                    Program.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего строку)");
+                    Program.ExitError(ex);
                 }
                 catch (Exception ex)
                 {
                     ex.Data["SQL"] = querySql;
-                    Program.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего строку)");
+                    Program.ExitError(ex);
                 }
                 sqlConnection.Close();
             }
             catch (Exception ex)
             {
                 ex.Data["SQL"] = querySql;
-                Program.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего строку)");               
-                goto label1;
+                Program.ExitError(ex);
             }
             return _result;
         }
@@ -129,20 +127,16 @@ namespace exportApiCovid
                 {
                     if (ex.Number == -2 && _countTimeout++ < 5)
                         goto label1;
-                    ex.Data["SQL"] = querySql;
-                    Program.logger.Error(ex, "Ошибка Запроса SQL (возвращающего целое число)");
+                    Program.ExitError(ex);
                 }
                 catch (Exception ex)
-                {
-                    ex.Data["SQL"] = querySql;
-                    Program.logger.Error(ex, "Ошибка Запроса SQL (возвращающего целое число)");
+                {                    
+                    Program.ExitError(ex);
                 }
             }
             catch (Exception ex)
             {
-                ex.Data["SQL"] = querySql;
-                Program.logger.Fatal(ex, "Ошибка Запроса SQL (возвращающего целое число)");               
-                goto label1;
+                Program.ExitError(ex);
             }
             sqlConnection.Close();
             return _result;
@@ -170,18 +164,18 @@ namespace exportApiCovid
                     if (ex.Number == -2 && _countTimeout++ < 5)
                         goto label1;
                     ex.Data["SQL"] = querySql;
-                    Program.logger.Fatal(ex, "Ошибка Запроса SQL (без возврата значения)");
+                    Program.ExitError(ex);
                 }
                 catch (Exception ex)
                 {
                     ex.Data["SQL"] = querySql;
-                    Program.logger.Fatal(ex, "Ошибка Запроса SQL (без возврата значения)");
+                    Program.ExitError(ex);
                 }
             }
             catch (Exception ex)
             {
                 ex.Data["SQL"] = querySql;
-                Program.logger.Fatal(ex, "Ошибка Запроса SQL (без возврата значения)");                               
+                Program.ExitError(ex);                                       
             }
             sqlConnection.Close();
             return _result;

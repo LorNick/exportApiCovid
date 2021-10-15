@@ -24,44 +24,55 @@ namespace exportApiCovid
             STATUS_ORDER
         }
 
+        #region ---- СЕРВЕР ----
         /// <summary>Шаг программы, можно выбрать только один (берем из конфига)</summary>
         public static eStepOfProgram stepOfProgram;
-
         /// <summary>Код нашего ЛПУ (берем из конфига)</summary>
         public static string departNumber;
-
         /// <summary>Начальный Токен (берем из конфига)</summary>
         public static string startToken;
-
         /// <summary>Рабочий Токен (берем из запроса)</summary>
         public static string workToken;
-
         /// <summary>Путь к серверу (берем из конфига)</summary>
         public static string url;
+        #endregion
 
+        #region ---- ШАГ ----
         /// <summary>Стартовый Cod kdlProtokol (берем из конфига)</summary>
         public static int startCodProtokol;
-
         /// <summary>Сколько тестовых циклов провести, если 0 то все циклы прогоняем (берем из конфига)</summary>
         public static int forTest;
-
         /// <summary>Сколько строк отправляем за один раз, максимум 50 (берем из конфига)</summary>
         public static int topRow;
-
         /// <summary>Количество статусов которые нужно вернуть для Шага STATUS_NEW (берем из конфига)</summary>       
         public static int statusNewCount;
-
         /// <summary>Коды для получения их статуса, для Шага STATUS_ORDER (берем из конфига)</summary>       
         public static string statusOrders;
+        #endregion
 
+        #region ---- КОНСОЛЬ ----
         /// <summary>Закрывать консоль по нажатию любой клавиши - true, или закрывать автоматом - false (берем из конфига)</summary>       
         public static bool closeConsoleKey;
-
         /// <summary>Отображать отправленные данны в логах - true, не показывать - false (только для PAKAGE)</summary>       
         public static bool visibleJsonPakage;
+        #endregion
 
-        /// <summary>Читаем данные из конфиг файла </summary>
-        /// <remarks>Успех считывания данных из конфиг файла</remarks>
+        #region ---- ПОЧТА ----
+        /// <summary>Отправлять почтовые сообщения да - true, нет - false (берем из конфига)</summary>
+        public static bool mailIs;
+        /// <summary>Техническая почта, от имени которого мы отправляем сообщения (берем из конфига)</summary>
+        public static string mailFrom;
+        /// <summary>Пароль от почты отправителя</summary>
+        public static string mailFromPassword;
+        /// <summary>Почта получатель (берем из конфига)</summary>       
+        public static string mailTo;
+        /// <summary>SMTP сервер (берем из конфига)</summary>       
+        public static string mailSmtp;
+        /// <summary>Порт SMTP сервера (берем из конфига)</summary>       
+        public static int mailPort;
+        #endregion
+
+        /// <summary>Читаем данные из конфиг файла </summary>       
         public static void LoadAppConfig()
         {
             closeConsoleKey = bool.Parse(ReadAppConfig("closeConsoleKey"));
@@ -95,9 +106,19 @@ namespace exportApiCovid
 
             if (stepOfProgram == eStepOfProgram.STATUS_ORDER)
                 statusOrders = ReadAppConfig("statusOrders");
+
+            mailIs = bool.Parse(ReadAppConfig("mailIs"));
+            if (mailIs)
+            {
+                mailFrom = ReadAppConfig("mailFrom");
+                mailFromPassword = ReadAppConfig("mailFromPassword");
+                mailTo = ReadAppConfig("mailTo");
+                mailSmtp = ReadAppConfig("mailSmtp");
+                mailPort = int.Parse(ReadAppConfig("mailPort"));
+            }
         }
 
-        /// <summary>Читаем данные из конфиг файле</summary>
+        /// <summary>Читаем данные из конфиг файла</summary>
         /// <param name="key">Ключ</param>
         /// <param name="isTryEmpty">Наличие ключа в файле, если false - то игнорируем, 
         ///     если true (по умолчанию) - выдаем исключение</param>

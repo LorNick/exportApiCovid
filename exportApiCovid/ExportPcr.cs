@@ -13,7 +13,7 @@ namespace exportApiCovid
     public static class ExportPcr
     {
         /// <summary>Колличество загружаемых записей</summary>
-        static int countRow = 0;
+        public static int countRow = 0;
               
         /// <summary>МЕТОД Запускаем расчет</summary>
         public static void Start()
